@@ -10,15 +10,13 @@ import StorageIcon from '@mui/icons-material/Storage';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useCollection } from '../../context/CollectionContext';
 import NestedList from './NestedList';
 
 function SideBar() {
   const { collection } = useCollection();
   const [open, setOpen] = useState(false);
-  const { pathname } = useLocation();
-
   const handleOpen = () => {
     setOpen(!open);
   };
@@ -31,7 +29,7 @@ function SideBar() {
         aria-labelledby="nested-list-subheader"
       >
         <NavLink
-          to={pathname}
+          to={'/my-files'}
           style={{ color: 'inherit' }}
           className={({ isActive }) => (isActive ? 'activeLink' : '')}
         >
