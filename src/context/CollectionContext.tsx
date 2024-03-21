@@ -15,9 +15,9 @@ interface IDefaultValue {
   files: ChildrenArray;
   currentEntity: Entity | null;
   pathnames: string[];
-  createEntity: (type: EntityType, name: string) => void,
-  renameEntity: (type: EntityType, name: string) => void,
-  deleteEntity: (name: string) => void,
+  createEntity: (type: EntityType, name: string) => void;
+  renameEntity: (type: EntityType, name: string) => void;
+  deleteEntity: (name: string) => void;
   setCurrentEntity: React.Dispatch<React.SetStateAction<Entity | null>>;
 }
 
@@ -45,13 +45,18 @@ const defaultValue: IDefaultValue = {
 const CollectionContext = createContext(defaultValue);
 
 const getFolderFiles = (collection: Collection, paths: string[]): ChildrenArray => {
-  if (paths.length <= 1 || collection.children.length === 0) return collection.children;
+  try {
+    if (paths.length <= 1 || collection.children.length === 0) return collection.children;
 
-  const newFiles = paths.slice(1).reduce((acc: ChildrenArray, curr: string) => {
-    const a = acc.find((item) => item.name === curr);
-    return (a as IFolder).children;
-  }, collection.children);
-  return newFiles;
+    const newFiles = paths.slice(1).reduce((acc: ChildrenArray, curr: string) => {
+      const a = acc.find((item) => item.name === curr);
+      return (a as IFolder).children;
+    }, collection.children);
+    return newFiles;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
 };
 
 const CollectionProvider = ({ children }: PropsWithChildren) => {
@@ -62,7 +67,7 @@ const CollectionProvider = ({ children }: PropsWithChildren) => {
   const location = useLocation();
   const pathnames = useMemo(
     () =>
-      location.pathname
+      decodeURI(location.pathname)
         .split('/')
         .filter((x) => x)
         .map((x) => x.replaceAll('-', ' ')),
@@ -70,11 +75,11 @@ const CollectionProvider = ({ children }: PropsWithChildren) => {
   );
 
   useEffect(() => {
-    if(pathnames.length === 0) {
+    if (pathnames.length === 0) {
       navigate('/my-files');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const childrenArray = getFolderFiles(collection, pathnames);
@@ -83,8 +88,6 @@ const CollectionProvider = ({ children }: PropsWithChildren) => {
     localStorage.setItem('collection', JSON.stringify(collection));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collection, pathnames]);
-
-
 
   const createEntity = (type: 'folder' | 'file', name: string) => {
     if (type === 'folder') {
